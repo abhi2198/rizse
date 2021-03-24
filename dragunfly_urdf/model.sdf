@@ -1,0 +1,905 @@
+<?xml version='1.0'?>
+<sdf version="1.6">
+  <model name="dragunfly_ardupilot">
+ 
+    <!-- Base Footprint -->
+    <!-- <link name="base_footprint" /> -->
+
+    <!-- Base Link -->
+    <!-- <joint name="footprint" type="fixed" >
+        <parent link="base_footprint" />
+        <child link="base_link" />
+        <pose>0 0 1 0 0 0</pose>
+    </joint> -->
+
+    <link name="base_link">
+        <inertial>
+            <mass>6048.75</mass>
+            <inertia>
+                <ixx>378200486700</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0</iyy>
+                <iyz>491746564810</iyz>
+		<izx>0</izx>
+		<izy>847157286030</izy>
+                <izz>0</izz>
+		
+            </inertia>
+        </inertial>
+        <visual name="dragunfly_base">
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+                <mesh>
+                  <scale>1 1 1</scale>
+                  <uri>model://dragunfly_urdf/meshes/Dragunfly_body-3.2.stl</uri>
+                </mesh>
+            </geometry>
+            <material>
+              <script>Gazebo/Black</script>
+            </material>
+        </visual>
+
+        <collision name="dragunfly_collision">
+            <geometry>
+                <box>
+                  <size>1.5 1.37 0.2</size>
+                </box>
+            </geometry>
+        </collision>
+    </link>
+    
+    <!-- Ouster sensor description -->
+    <link name="os1_sensor">
+        <inertial>
+            <mass>0.0003</mass>
+            <pose>0 0 0.036 0 0 1.5707</pose>
+            <inertia>
+                <ixx>0.000241148</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.000241148</iyy>
+                <iyz>0</iyz>
+                <izz>0.000264</izz>
+            </inertia>
+        </inertial>
+        <collision name="os1_sensor_collision">
+            <pose>0 0 0.0365 0 0 1.5707"</pose>
+            <geometry>
+                <cylinder>
+                  <radius>0.04</radius>
+                  <length>0.073</length>
+                </cylinder>
+            </geometry>
+        </collision>
+        <visual name="os1_sensor_visual">
+            <pose>0 0 0.0365 0 0 1.5707</pose>
+            <geometry>
+                <mesh>
+                  <uri>model://dragunfly_urdf/meshes/os1_64.dae</uri>
+                </mesh>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="lidar_joint" type="fixed">
+        <parent>base_link</parent>
+        <child>os1_sensor</child>
+        <pose>0 0 -.062 3.1415926535897931 0 0</pose>
+    </joint>
+
+    <!-- Ouster sensor IMU and Lidar links and respective joints -->
+    <link name="os1_imu">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+		<iyx>0</iyx>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+		<izx>0</izx>
+		<izy>0</izy>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+        <!-- <sensor name="${lidar_imu_link}" type="imu">
+          <pose>0 0 0 3.141593 0 0</pose>
+          <always_on>1</always_on>
+          <update_rate>1000.0</update_rate>
+          <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
+            <robotNamespace>/</robotNamespace>
+            <updateRate>100.0</updateRate> 
+            <bodyName>${lidar_imu_link}</bodyName>
+            <topicName>${topic_imu}</topicName>
+            <accelDrift>0.005 0.005 0.005</accelDrift>
+            <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
+            <rateDrift>0.005 0.005 0.005 </rateDrift>
+            <rateGaussianNoise>0.005 0.005 0.005 </rateGaussianNoise>
+            <headingDrift>0.005</headingDrift>
+            <headingGaussianNoise>0.005</headingGaussianNoise>
+        </plugin>
+      </sensor> -->
+    </link>
+
+    <link name="os1_lidar">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.01</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+		<izx>0</izx>
+		<izy>0</izy>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+        <sensor type="ray" name="os1_lidar">
+          <pose>0 0 0 0 0 0</pose>
+          <visualize>true</visualize>
+          <update_rate>10</update_rate>
+          <ray>
+              <scan>
+                  <horizontal>
+                      <samples>512</samples>
+                      <resolution>1</resolution>
+                      <min_angle>-3.14</min_angle>
+                      <max_angle>100</max_angle>
+                  </horizontal>
+                  <vertical>
+                      <samples>128</samples>
+                      <resolution>1</resolution>
+                      <min_angle>0.26</min_angle>
+                      <max_angle>0.26</max_angle>
+                  </vertical>
+              </scan>
+              <range>
+                  <min>0.09</min>
+                  <max>100</max>
+                  <resolution>0.03</resolution>
+              </range>
+          </ray>
+          <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_ouster_laser.so">
+              <topicName>/os1_cloud_node/points</topicName>
+              <frameName>os1_lidar</frameName>
+              <min_range>0.09</min_range>
+              <max_range>100</max_range>
+              <gaussianNoise>0.008</gaussianNoise>
+          </plugin>
+      </sensor>
+    </link>
+    
+    <joint name="os1_sensor_imu_link_joint" type="fixed">
+        <parent>os1_sensor</parent>
+        <child>os1_imu</child>
+        <pose>"0.006253 -0.011775 0.007645 0 0 0"</pose>
+    </joint>
+
+    <joint name="$os1_sensor_lidar_link_joint" type="fixed">
+        <parent>os1_sensor</parent>
+        <child>os1_lidar</child>
+        <pose>0.0 0.0 0.03618 0 0 0"</pose>
+    </joint>
+
+    <link name="fcu">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="optical_flow">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+		<iyx>0</iyx>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+		<izx>0</izx>
+		<izy>0</izy>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="j120_imu">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+		<iyx>0</iyx>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+		<izx>0</izx>
+		<izy>0</izy>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="laser_altimeter">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="gps_sensor">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="gimbal_roll_mount">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="gimbal_pitch_mount">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="gimbal_plate_mount">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="camera_physical">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+    <link name="camera_optical">
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.15</mass>
+            <inertia>
+                <ixx>0.00001</ixx>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyy>0.00002</iyy>
+                <iyz>0</iyz>
+                <izz>0.00002</izz>
+            </inertia>
+        </inertial>
+    </link>
+
+    <joint name="fcu_joint" type="fixed">
+        <parent>base_link</parent>
+        <child>fcu</child>
+        <pose>-0.031 0 -0.0445 3.14 0 0</pose>
+    </joint>
+
+    <joint name="optical_flow_joint" type="fixed">
+        <parent>base_link</parent>
+        <child>optical_flow</child>
+        <pose>-0.170 -0.002 -0.035 3.14 0 3*3.14/2}</pose>
+    </joint>
+
+    <joint name="j120_imu_joint" type="fixed">
+        <parent>base_link</parent>
+        <child>j120_imu</child>
+        <pose>0.079 0.025 0.0165 0 0 3.14</pose>
+    </joint>
+
+    <joint name="laser_altimeter_joint" type="fixed">
+        <parent>base_link</parent>
+        <child>laser_altimeter</child>
+        <pose>-0.209 0 -0.030 0 0 0</pose>
+    </joint>
+
+    <joint name="gps_sensor_joint" type="fixed">
+        <parent>base_link</parent>
+        <child>gps_sensor</child>
+        <pose>-0.185 0 0.030 0 0 0</pose>
+    </joint>
+
+    <joint name="gimbal_roll_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>gimbal_roll_mount</child>
+      <pose>0.139 0 0.009 0 0 0</pose>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>2*3.14</upper>
+          <effort>0.118</effort>
+          <velocity>123.213</velocity>
+        </limit>
+      </axis>
+    </joint>
+
+    <joint name="gimbal_pitch_joint" type="revolute">
+        <parent>gimbal_roll_mount</parent>
+        <child>gimbal_pitch_mount</child>
+        <pose>0.088 0.046 -0.018 0 0 3*3.14/2}</pose>
+        <axis>
+          <xyz>1 0 0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>2*3.14</upper>
+            <effort>0.118</effort>
+            <velocity>123.213</velocity>
+          </limit>          
+        </axis>
+
+    </joint>
+
+    <joint name="gimbal_plate_joint" type="fixed">
+        <parent>gimbal_pitch_mount</parent>
+        <child>gimbal_plate_mount</child>
+        <pose>0.0725 0 0 0 0 3.14/2}</pose>
+    </joint>
+
+    <joint name="camera_physical_joint" type="fixed">
+        <parent>gimbal_plate_mount</parent>
+        <child>camera_physical</child>
+        <pose>-0.0325 0.045 0.05475 3.14 0 0</pose>
+    </joint>
+
+    <joint name="camera_optical_joint" type="fixed">
+        <parent>camera_physical</parent>
+        <child>camera_optical</child>
+        <pose>0.034 0.01925 0.03575 0 0 0</pose>
+    </joint>
+
+
+<!-- Rotor Links -->
+
+    <link name='rotor_0'>
+      <pose>0.256 0.316 0.059 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.025</mass>
+        <inertia>
+          <ixx>9.75e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000166704</iyy>
+          <iyz>0</iyz>
+          <izz>0.000167604</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_0_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+
+    <joint name='rotor_0_joint' type='revolute'>
+      <child>rotor_0</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <damping>0.004</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+
+    <link name='rotor_1'>
+      <pose>-0.256 0.316 0.059 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.025</mass>
+        <inertia>
+          <ixx>9.75e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000166704</iyy>
+          <iyz>0</iyz>
+          <izz>0.000167604</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_1_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+
+    <joint name='rotor_1_joint' type='revolute'>
+      <child>rotor_1</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <damping>0.004</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+
+    <link name='rotor_2'>
+      <pose>0.256 0.316 0.059 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.025</mass>
+        <inertia>
+          <ixx>9.75e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000166704</iyy>
+          <iyz>0</iyz>
+          <izz>0.000167604</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_2_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+
+    <joint name='rotor_2_joint' type='revolute'>
+      <child>rotor_2</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <damping>0.004</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+
+    <link name='rotor_3'>
+      <pose>-0.256 -0.316 0.059 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>0.025</mass>
+        <inertia>
+          <ixx>9.75e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.000166704</iyy>
+          <iyz>0</iyz>
+          <izz>0.000167604</izz>
+        </inertia>
+      </inertial>
+      <collision name='rotor_3_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>0.005</length>
+            <radius>0.1</radius>
+          </cylinder>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>0</self_collide>
+    </link>
+
+    <joint name='rotor_3_joint' type='revolute'>
+      <child>rotor_3</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-1e+16</lower>
+          <upper>1e+16</upper>
+        </limit>
+        <dynamics>
+          <damping>0.004</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+<!-- Rotor Plugin -->
+    <plugin name="rotor_0_blade_1" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>0.084 0 0</cp>
+        <forward>0 1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_0</link_name>
+    </plugin>
+    <plugin name="rotor_0_blade_2" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>-0.084 0 0</cp>
+        <forward>0 -1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_0</link_name>
+    </plugin>
+
+    <plugin name="rotor_1_blade_1" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>0.084 0 0</cp>
+        <forward>0 1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_1</link_name>
+    </plugin>
+    <plugin name="rotor_1_blade_2" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>-0.084 0 0</cp>
+        <forward>0 -1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_1</link_name>
+    </plugin>
+
+    <plugin name="rotor_2_blade_1" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>0.084 0 0</cp>
+        <forward>0 -1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_2</link_name>
+    </plugin>
+    <plugin name="rotor_2_blade_2" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>-0.084 0 0</cp>
+        <forward>0 1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_2</link_name>
+    </plugin>
+
+    <plugin name="rotor_3_blade_1" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>0.084 0 0</cp>
+        <forward>0 -1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_3</link_name>
+    </plugin>
+    <plugin name="rotor_3_blade_2" filename="libLiftDragPlugin.so">
+        <a0>0.3</a0>
+        <alpha_stall>1.4</alpha_stall>
+        <cla>4.2500</cla>
+        <cda>0.10</cda>
+        <cma>0.00</cma>
+        <cla_stall>-0.025</cla_stall>
+        <cda_stall>0.0</cda_stall>
+        <cma_stall>0.0</cma_stall>
+        <area>0.002</area>
+        <air_density>1.2041</air_density>
+        <cp>-0.084 0 0</cp>
+        <forward>0 1 0</forward>
+        <upward>0 0 1</upward>
+        <link_name>rotor_3</link_name>
+    </plugin>
+
+<!-- IMU for ardupilot -->
+    <link name='ardupilot_imu'>
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.15</mass>
+        <inertia>
+          <ixx>0.00001</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00002</iyy>
+          <iyz>0</iyz>
+          <izz>0.00002</izz>
+        </inertia>
+      </inertial>
+      <sensor name="ardupilot_imu_sensor" type="imu">
+        <pose>0 0 0 3.141593 0 0</pose>
+        <always_on>1</always_on>
+        <update_rate>1000.0</update_rate>
+      </sensor>
+    </link>
+    <joint name='ardupilot_imu_joint' type='revolute'>
+      <child>ardupilot_imu</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <damping>1.0</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
+    </joint>
+
+
+<!-- Arducopter Plugin -->
+    <plugin name="arducopter_plugin" filename="libArduPilotPlugin.so">
+        <fdm_addr>127.0.0.1</fdm_addr>
+        <fdm_port_in>9002</fdm_port_in>
+        <fdm_port_out>9003</fdm_port_out>
+        <!--
+          Require by APM :
+          Only change model and gazebo from XYZ to XY-Z coordinates
+        -->
+        <modelXYZToAirplaneXForwardZDown>0 0 0 3.141593 0 0</modelXYZToAirplaneXForwardZDown>
+        <gazeboXYZToNED>0 0 0 3.141593 0 0</gazeboXYZToNED>
+        <imuName>ardupilot_imu_sensor</imuName>
+            <connectionTimeoutMaxCount>50</connectionTimeoutMaxCount>
+        <control channel="0">
+            <!--
+              incoming control command [0, 1]
+              so offset it by 0 to get [0, 1]
+              and divide max target by 1.
+              offset = 0
+              multiplier = 838 max rpm / 1 = 838
+            -->
+            <type>VELOCITY</type>
+            <offset>0</offset>
+            <p_gain>0.20</p_gain>
+            <i_gain>0</i_gain>
+            <d_gain>0</d_gain>
+            <i_max>0</i_max>
+            <i_min>0</i_min>
+            <cmd_max>2.5</cmd_max>
+            <cmd_min>-2.5</cmd_min>
+            <jointName>rotor_0_joint</jointName>
+            <multiplier>838</multiplier>
+            <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+        </control>
+        <control channel="1">
+            <type>VELOCITY</type>
+            <offset>0</offset>
+            <p_gain>0.20</p_gain>
+            <i_gain>0</i_gain>
+            <d_gain>0</d_gain>
+            <i_max>0</i_max>
+            <i_min>0</i_min>
+            <cmd_max>2.5</cmd_max>
+            <cmd_min>-2.5</cmd_min>
+            <jointName>rotor_1_joint</jointName>
+            <multiplier>838</multiplier>
+            <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+        </control>
+        <control channel="2">
+            <type>VELOCITY</type>
+            <offset>0</offset>
+            <p_gain>0.20</p_gain>
+            <i_gain>0</i_gain>
+            <d_gain>0</d_gain>
+            <i_max>0</i_max>
+            <i_min>0</i_min>
+            <cmd_max>2.5</cmd_max>
+            <cmd_min>-2.5</cmd_min>
+            <jointName>rotor_2_joint</jointName>
+            <multiplier>-838</multiplier>
+            <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+        </control>
+        <control channel="3">
+            <type>VELOCITY</type>
+            <offset>0</offset>
+            <p_gain>0.20</p_gain>
+            <i_gain>0</i_gain>
+            <d_gain>0</d_gain>
+            <i_max>0</i_max>
+            <i_min>0</i_min>
+            <cmd_max>2.5</cmd_max>
+            <cmd_min>-2.5</cmd_min>
+            <jointName>rotor_3_joint</jointName>
+            <multiplier>-838</multiplier>
+            <controlVelocitySlowdownSim>1</controlVelocitySlowdownSim>
+        </control>
+    </plugin>
+
+  </model>
+</sdf>
